@@ -221,8 +221,7 @@ static NSArray *allowedSelectorNamesForJavaScript;
         bounds.size.height -= findBarHeight;
     }
     
-    [webView setFrame:NSMakeRect(bounds.origin.x + 1, bounds.origin.y + 1,
-                                 bounds.size.width - 2, bounds.size.height - 2)];
+    [webView setFrame:bounds];
 }
 
 - (void) showFindInterface {
