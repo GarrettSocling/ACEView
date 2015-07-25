@@ -28,6 +28,7 @@ static NSArray *allowedSelectorNamesForJavaScript;
 @interface ACEView() {
     WebView *           printingView;
     NSPrintOperation *  printOperation;
+    NSMutableArray *    scriptsToRunWhenLoaded;
 }
 
 - (void) initWebView;
@@ -85,6 +86,7 @@ static NSArray *allowedSelectorNamesForJavaScript;
 
 - (void) dealloc {
     [webView release];
+    [scriptsToRunWhenLoaded release];
     [printingView release];
     [textFinder release];
     
@@ -141,6 +143,8 @@ static NSArray *allowedSelectorNamesForJavaScript;
 #pragma mark - WebView delegate methods
 - (void) webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame {
     [[webView windowScriptObject] setValue:self forKey:@"ACEView"];
+    
+    [self executeScripts:scriptsToRunWhenLoaded];
 }
 
 - (float) webViewHeaderHeight:(WebView *)sender
@@ -207,14 +211,27 @@ static NSArray *allowedSelectorNamesForJavaScript;
 
     return contentString;
 }
+
+- (void) executeScripts:(NSArray *)scripts {
+    [scripts enumerateObjectsUsingBlock:^(id script, NSUInteger index, BOOL *stop) {
+        NSLog(@"in: %@", script);
+        NSString *output = [webView stringByEvaluatingJavaScriptFromString:script];
+        if ([output length]) {
+            NSLog(@"out: %@", output);
+        }
+    }];
+}
+
 - (void) executeScriptsWhenLoaded:(NSArray *)scripts {
     if ([webView isLoading]) {
-        [self performSelector:@selector(executeScriptsWhenLoaded:) withObject:scripts afterDelay:0.2];
-        return;
+        if (!scriptsToRunWhenLoaded) {
+            scriptsToRunWhenLoaded = [[NSMutableArray alloc] init];
+        }
+        
+        [scriptsToRunWhenLoaded addObjectsFromArray:scripts];
+    } else {
+        [self executeScripts:scripts];
     }
-    [scripts enumerateObjectsUsingBlock:^(id script, NSUInteger index, BOOL *stop) {
-        [webView stringByEvaluatingJavaScriptFromString:script];
-    }];
 }
 - (void) executeScriptWhenLoaded:(NSString *)script {
     [self executeScriptsWhenLoaded:@[script]];
