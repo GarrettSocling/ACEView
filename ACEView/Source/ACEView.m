@@ -290,9 +290,10 @@ static NSArray *allowedSelectorNamesForJavaScript;
 - (void) setString:(id)string {
     [self executeScriptsWhenLoaded:@[
         @"reportChanges = false;",
-        [NSString stringWithFormat:@"editor.setValue(\"%@\");", [string stringByEscapingForJavaScript]],
-        @"editor.clearSelection();",
-        @"editor.moveCursorTo(0, 0);",
+        @"var ace = require('ace/ace');",
+        @"var mode = editor.getSession().$modeId;",
+        [NSString stringWithFormat:@"var newSession = ace.createEditSession(\"%@\", mode);", [string stringByEscapingForJavaScript]],
+        @"editor.setSession(newSession);",
         @"reportChanges = true;",
         @"ACEView.aceTextDidChange();"
     ]];
