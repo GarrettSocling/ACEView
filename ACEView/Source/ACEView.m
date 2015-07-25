@@ -83,6 +83,14 @@ static NSArray *allowedSelectorNamesForJavaScript;
     return self;
 }
 
+- (void) dealloc {
+    [webView release];
+    [printingView release];
+    [textFinder release];
+    
+    [super dealloc];
+}
+
 - (void) awakeFromNib {
     [self addSubview:webView];
     [self setBorderType:NSBezelBorder];
