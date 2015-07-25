@@ -214,11 +214,7 @@ static NSArray *allowedSelectorNamesForJavaScript;
 
 - (void) executeScripts:(NSArray *)scripts {
     [scripts enumerateObjectsUsingBlock:^(id script, NSUInteger index, BOOL *stop) {
-        NSLog(@"in: %@", script);
-        NSString *output = [webView stringByEvaluatingJavaScriptFromString:script];
-        if ([output length]) {
-            NSLog(@"out: %@", output);
-        }
+        [webView stringByEvaluatingJavaScriptFromString:script];
     }];
 }
 
