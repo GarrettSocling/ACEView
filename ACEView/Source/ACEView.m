@@ -113,6 +113,7 @@ static NSArray *allowedSelectorNamesForJavaScript;
     html = [html stringByReplacingOccurrencesOfString:ACE_JAVASCRIPT_DIRECTORY withString:javascriptDirectory];
     
     [[webView mainFrame] loadHTMLString:html baseURL:[bundle bundleURL]];
+    [[webView windowScriptObject] setValue:self forKey:@"ACEView"];
 }
 
 - (NSString *) aceJavascriptDirectoryPath {
@@ -141,11 +142,6 @@ static NSArray *allowedSelectorNamesForJavaScript;
 }
 
 #pragma mark - WebView delegate methods
-- (void) webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame {
-    [[webView windowScriptObject] setValue:self forKey:@"ACEView"];
-    
-    [self executeScripts:scriptsToRunWhenLoaded];
-}
 
 - (float) webViewHeaderHeight:(WebView *)sender
 {
@@ -229,8 +225,13 @@ static NSArray *allowedSelectorNamesForJavaScript;
         [self executeScripts:scripts];
     }
 }
+
 - (void) executeScriptWhenLoaded:(NSString *)script {
     [self executeScriptsWhenLoaded:@[script]];
+}
+
+- (void)javascriptSetupCompleted {
+    [self executeScripts:scriptsToRunWhenLoaded];
 }
 
 - (void) resizeWebView {
@@ -260,7 +261,8 @@ static NSArray *allowedSelectorNamesForJavaScript;
             @"showFindInterface",
             @"showReplaceInterface",
             @"aceTextDidChange",
-            @"printHTML:"
+            @"printHTML:",
+            @"javascriptSetupCompleted"
         ];
     }
     return [allowedSelectorNamesForJavaScript retain];
